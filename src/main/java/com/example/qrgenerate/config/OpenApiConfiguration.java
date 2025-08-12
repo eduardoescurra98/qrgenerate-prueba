@@ -14,15 +14,13 @@ import java.util.List;
 @Configuration
 public class OpenApiConfiguration {
 
-    @Value("${spring.profiles.active:dev}")
-    private String activeProfile;
+    @Value("${API_URL:http://localhost:8080}")
+    private String apiUrl;
 
     @Bean
     public OpenAPI infraApi() {
-
-        // General configuration
-        var openApi = new OpenAPI();
-        openApi.info(new Info()
+        return new OpenAPI()
+                .info(new Info()
                         .title("AquaSense Platform API")
                         .description("AquaSense API documentation.")
                         .version("v1.0.0")
@@ -31,25 +29,11 @@ public class OpenApiConfiguration {
                                 .url("https://springdoc.org")))
                 .externalDocs(new ExternalDocumentation()
                         .description("AquaSense github page")
-                        .url("https://github.com/HorsesDevelopers/backend"));
-
-        // Configurar servidores según el entorno
-        if ("prod".equals(activeProfile)) {
-            openApi.servers(List.of(
-                    new Server()
-                            .url("https://qrgenerate-prueba-production.up.railway.app/")
-                            .description("Servidor de Producción")
-            ));
-        } else {
-            // Para entorno local u otros
-            openApi.servers(List.of(
-                    new Server()
-                            .url("http://localhost:8080")
-                            .description("Servidor Local")
-            ));
-        }
-
-
-        return openApi;
+                        .url("https://github.com/HorsesDevelopers/backend"))
+                .servers(List.of(
+                        new Server()
+                                .url(apiUrl)
+                                .description("API Server")
+                ));
     }
 }
