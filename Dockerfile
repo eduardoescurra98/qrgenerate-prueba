@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jdk-slim
+FROM eclipse-temurin:21.0.2_13-jre-jammy
 
 # Configurar timezone y locale
 ENV TZ=America/Lima
