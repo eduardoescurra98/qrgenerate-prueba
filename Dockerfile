@@ -1,24 +1,37 @@
 FROM eclipse-temurin:21-jdk-alpine
+
+# Instalar soporte para locale
+RUN apk add --no-cache tzdata musl-locales musl-locales-lang
+
+# Configurar locale y timezone
+ENV TZ=America/Lima
+ENV LANG=es_ES.UTF-8
+ENV LANGUAGE=es_ES:es
+ENV LC_ALL=es_ES.UTF-8
+
 WORKDIR /app
 
-# Configurar codificación UTF-8
-ENV LANG='es_ES.UTF-8' LANGUAGE='es_ES:es' LC_ALL='es_ES.UTF-8'
-
-# Copiar solo el pom.xml primero
-COPY pom.xml .
-COPY .mvn/ .mvn/
+# Copiar archivos Maven
 COPY mvnw .
+COPY .mvn .mvn
+COPY pom.xml .
 
-# Dar permisos de ejecución y descargar dependencias
+# Dar permisos y descargar dependencias
 RUN chmod +x mvnw && \
     ./mvnw dependency:go-offline -B
 
-# Copiar el código fuente
-COPY src/ src/
+# Copiar código fuente
+COPY src src
 
-# Compilar la aplicación con codificación UTF-8
-RUN ./mvnw package -DskipTests -Dfile.encoding=UTF-8
+# Compilar con configuración específica de codificación
+RUN ./mvnw clean package \
+    -Dfile.encoding=UTF-8 \
+    -Dmaven.compiler.source=21 \
+    -Dmaven.compiler.target=21 \
+    -Dproject.build.sourceEncoding=UTF-8 \
+    -Dproject.reporting.outputEncoding=UTF-8 \
+    -DskipTests
 
-# Configurar la ejecución
 EXPOSE 8080
+
 ENTRYPOINT ["java", "-Dfile.encoding=UTF-8", "-jar", "target/qr-0.0.1-SNAPSHOT.jar"]
