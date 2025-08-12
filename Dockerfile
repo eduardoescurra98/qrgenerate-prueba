@@ -1,13 +1,16 @@
-FROM eclipse-temurin:21-jdk-alpine
+FROM eclipse-temurin:21-jdk-slim
 
-# Instalar soporte para locale
-RUN apk add --no-cache tzdata musl-locales musl-locales-lang
-
-# Configurar locale y timezone
+# Configurar timezone y locale
 ENV TZ=America/Lima
 ENV LANG=es_ES.UTF-8
 ENV LANGUAGE=es_ES:es
 ENV LC_ALL=es_ES.UTF-8
+
+# Instalar locales
+RUN apt-get update && apt-get install -y locales && \
+    sed -i -e 's/# es_ES.UTF-8 UTF-8/es_ES.UTF-8 UTF-8/' /etc/locale.gen && \
+    locale-gen && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
